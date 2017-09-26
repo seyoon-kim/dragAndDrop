@@ -8,32 +8,27 @@
         margin:0;
         padding:0;
       }
+
+      div {
+        width:100px;
+        height:100px;
+      }
+
+      #dnd1{
+        background-color:red;
+      }
     </style>
   </head>
   <body>
     <h1>Drag and Drop</h1>
 
-    <div id="dnd1"></div>
+    <div id="dnd1">#dnd1</div>
     <div id="dnd2"></div>
     <div class="my-dnd"></div>
     <div class="my-dnd"></div>
     <div id="drop1"></div>
     <div id="drop2"></div>
 
-    <script type="text/javascript" src="util.js"></script>
-    <script type="text/javascript" src="../src/index.js"></script>
-    <script type="text/javascript">
-      (function() {
-          dnd.draggable('#dnd1');
-          dnd.draggable('.my-dnd');    // 2개 엘리먼트 처리
-          var dropzone1 = dnd.dropzone('#drop1');    // Dropzone은 인스턴스를 반환하고 한번에 하나의 dropzone을 생성할 수 있다.
-          var dropzone2 = dnd.dropzone('#drop2');
-
-          dropzone1.on('drop', function(eventData) {
-              console.log(eventData.target);    // 드롭 된 엘리먼트
-              console.log(eventData.isContain);    // 완전 포함 여부
-          });
-      })();
-    </script>
+    <script type="text/javascript" src="../dist/bundle.js"></script>
   </body>
 </html>
