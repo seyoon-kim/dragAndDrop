@@ -18,10 +18,14 @@
         text-align: center;
       }
 
+      h2{
+        font-size:12px;
+      }
+
       .dndWrap{
         position: relative;
         left:50%;
-        margin-top:50px;
+        margin-top:20px;
         margin-left:-150px;
         width:300px;
       }
@@ -64,14 +68,19 @@
 
     <div class="dndWrap">
       <div class="dragZone">
+        <h2>drag 기능 해제</h2>
         <div id="dnd1">#dnd1</div>
+        <h2>drag 가능, drop 가능</h2>
         <div id="dnd2">#dnd2</div>
-        <div class="my-dnd">my-dnd</div>
-        <div class="my-dnd">my-dnd</div>
+        <h2>복수 drag 가능</h2>
+        <div class="my-dnd">.my-dnd</div>
+        <div class="my-dnd">.my-dnd</div>
       </div>
 
       <div class="dropZone">
+        <h2>drop 기능 해제</h2>
         <div id="drop1">#drop1</div>
+        <h2>drop 가능</h2>
         <div id="drop2">#drop2</div>
       </div>
     </div>
