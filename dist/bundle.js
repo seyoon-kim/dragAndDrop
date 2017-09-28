@@ -60,48 +60,182 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-var dnd = __webpack_require__(1);
-console.log(dnd)
-dnd.draggable('#dnd1');
-// dnd.draggable('.my-dnd');    // 2개 엘리먼트 처리
-// var dropzone1 = dnd.dropzone('#drop1');    // Dropzone은 인스턴스를 반환하고 한번에 하나의 dropzone을 생성할 수 있다.
-// var dropzone2 = dnd.dropzone('#drop2');
-//
-// dropzone1.on('drop', function(eventData) {
-//     console.log(eventData.target);    // 드롭 된 엘리먼트
-//     console.log(eventData.isContain);    // 완전 포함 여부
-// });
+function forEach(arr, func) {
+    var i = 0;
+    var arrLength = arr.length;
+    for (; i < arrLength; i += 1) {
+        func.call(this, i, arr[i]);
+    }
+}
+
+module.exports = {
+    forEach : forEach
+}
 
 
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Domutil = __webpack_require__(2);
-var Eventutil = __webpack_require__(3);
+var dnd = __webpack_require__(2);
 
-function draggable(selectorName) {
-    var draggableElement = Domutil.querySelector(selectorName);
-    draggableElement.setAttribute('draggable', true);
-    Eventutil.addHandler(draggableElement, 'dragstart', function(event) {
-        event.dataTransfer.setData('dragTarget', event.target);
-    });
-}
+dnd.draggable('#dnd1');
+dnd.draggable('.my-dnd'); // 2개 엘리먼트 처리
 
-module.exports = {
-    draggable : draggable
-}
+var dropzoneDrop1 = dnd.dropzone('#drop1'); // Dropzone은 인스턴스를 반환하고 한번에 하나의 dropzone을 생성할 수 있다.
+dropzoneDrop1.on('drop', function(eventData) {
+    console.log(eventData)
+    console.log('drop1-1');
+    console.log(eventData.target); // 드롭 된 엘리먼트
+});
+
+dropzoneDrop1.on('drop', function(eventData) {
+    console.log(eventData)
+    console.log('drop1-2');
+    console.log(eventData.target);
+});
+
+var dropzoneDrop2 = dnd.dropzone('#drop2');
+dropzoneDrop2.on('drop', function(eventData) {
+    console.log(eventData)
+    console.log('drop2-1');
+    console.log(eventData.target);
+});
+
+
+dnd.draggable('#dnd2');
+var dropzoneDnd2 = dnd.dropzone('#dnd2');
+dropzoneDnd2.on('drop', function(eventData) {
+    console.log(eventData)
+    console.log('dnd2');
+    console.log(eventData.target);
+});
+
+dnd.undraggable('#dnd1');
+dnd.undropzone('#drop1');
 
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var domutil = __webpack_require__(3);
+var eventutil = __webpack_require__(4);
+var customEvents = __webpack_require__(5);
+var arrayutil = __webpack_require__(0);
+
+/**
+ * 인자로 받은 selectorName에 해당하는 엘리멘트가 drag 가능하게 만들어 주는 함수
+ * @param {string} selectorName drag가능 하게 만들고자 하는 엘리멘트의 selectorName
+ */
+function draggable(selectorName) {
+    var draggableElement = domutil.querySelectorAll(selectorName);
+
+    if (draggableElement[0].getAttribute('draggable')) {
+        return;
+    }
+
+    arrayutil.forEach(draggableElement, function(index, value) {
+        value.setAttribute('draggable', true);
+    });
+
+    eventutil.addHandler(document, 'dragstart', _dragStart);
+    eventutil.addHandler(document, 'dragover', _dragOver);
+}
+
+/**
+ * 인자로 받은 selectorName에 해당하는 엘리멘트가 drag 가능하다면 다시 해제해주는 함수
+ * @param {string} selectorName drag를 해제 하게 만들고자 하는 엘리멘트의 selectorName
+ */
+function undraggable(selectorName) {
+    var draggableElement = domutil.querySelectorAll(selectorName);
+
+    if (!draggableElement[0].getAttribute('draggable')) {
+        return;
+    }
+
+    arrayutil.forEach(draggableElement, function(index, draggableElementItem) {
+        draggableElementItem.removeAttribute('draggable');
+    });
+}
+
+/**
+ * drag한 엘리멘트의 정보를 담는 함수
+ * @param {obejct} event drag한 객체의 이벤트 정보
+ */
+function _dragStart(event) {
+    var eventTarget = event.target;
+    var dragTargetId = eventTarget.id;
+    var uniqueId = 'drag' + (new Date()).getTime();
+
+    if (dragTargetId) {
+        event.dataTransfer.setData('text', dragTargetId);
+    } else {
+        eventTarget.setAttribute('id', uniqueId);
+        event.dataTransfer.setData('text', eventTarget.id);
+    }
+}
+
+/**
+ * 엘리멘트를 drag 하는 중에 해당하는 함수
+ * @param {obejct} event drag한 객체의 이벤트 정보
+ */
+function _dragOver(event) {
+    event.preventDefault();
+}
+
+/**
+ * 인자로 받은 selectorName에 해당하는 엘리멘트를 drop가능하게 만들어 주는 함수
+ * @param {string} selectorName drop 가능하게 만들고자 하는 엘리멘트의 selectorName
+ * @return {object}
+ */
+function dropzone(selectorName) {
+    var dropElement = domutil.querySelector(selectorName);
+
+    eventutil.addHandler(dropElement, 'drop', _drop);
+    customEvents.mixin(dropElement);
+
+    return dropElement;
+}
+
+/**
+ * 인자로 받은 selectorName에 해당하는 엘리멘트의 drop기능을 해제하고자 하는 함수
+ * @param {string} selectorName drop 해제하게 만들고자 하는 엘리멘트의 selectorName
+ */
+function undropzone(selectorName) {
+    var dropElement = domutil.querySelector(selectorName);
+    eventutil.removeHandler(dropElement, 'drop', _drop);
+}
+
+/**
+ * 엘리멘트를 drop할 경우 drop 엘리멘트가 가지고 있는 커스텀 이벤트를 호출하는 함수
+ * @param {obejct} event drop당하는 객체의 이벤트 정보
+ */
+function _drop(event) {
+    event.preventDefault();
+    var dropTarget = event.target;
+    var dragTargetId = event.dataTransfer.getData('text');
+    var dragTargetElement = document.getElementById(dragTargetId);
+    dropTarget.fire('drop', {target : dragTargetElement});
+}
+
+module.exports = {
+    draggable : draggable,
+    dropzone : dropzone,
+    undraggable : undraggable,
+    undropzone : undropzone
+}
+
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports) {
 
 var _toArray = function(likeArray) {
@@ -271,7 +405,7 @@ module.exports = {
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports) {
 
 // JavaScript for Web Developers 참고
@@ -299,6 +433,98 @@ module.exports = {
     addHandler: addHandler,
     removeHandler: removeHandler
 };
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var arrayutil = __webpack_require__(0);
+
+var customEventObjects = [];
+
+function mixin(object) {
+    object.customEventList = {};
+    customEventObjects.push(object);
+
+    /**
+     * customEventName에 해당하는 이벤트를 만든 후 customEventHandler 바인딩 한다.
+     * @param {string} customEventName 커스텀 이벤트 이름
+     * @param {function} customEventHandler 커스텀 이벤트에 연결해줄 함수
+     */
+    object.on = function(customEventName, customEventHandler) {
+        var isEqualHandler = false;
+
+        if (!this.customEventList[customEventName]) {
+            this.customEventList[customEventName] = [];
+        }
+
+        arrayutil.forEach(this.customEventList[customEventName], function(index, customEventListItem) {
+            if (customEventListItem === customEventHandler) {
+                isEqualHandler = true;
+                return;
+            }
+        });
+
+        if (isEqualHandler === false) {
+            this.customEventList[customEventName].push(customEventHandler);
+        }
+    }
+
+    /**
+     * customEventName에 해당하는 이벤트에 argumentObject인자를 받아 호출한다.
+     * @param {string} customEventName 커스텀 이벤트 이름
+     * @param {object} argumentObject 커스텀 이벤트에 들어갈 인자
+     */
+    object.fire = function(customEventName, argumentObject) {
+        var objectContext = this;
+        var customEventOfCustomEventList = this.customEventList[customEventName];
+
+        if (!customEventOfCustomEventList) {
+            return;
+        }
+
+        arrayutil.forEach(customEventOfCustomEventList, function(index, value) {
+            value.call(objectContext, argumentObject);
+        });
+    }
+
+    /**
+     * customEventName에 해당하는 이벤트 중 해당하는 customEventHandler를 삭제한다.
+     * @param {string} customEventName 커스텀 이벤트 이름
+     * @param {function} customEventHandler 커스텀 이벤트연결된 핸들러 중 해제할 함수
+     */
+    object.off = function(customEventName, customEventHandler) {
+        var customEventHandlerIndex;
+        var customEventOfCustomEventList = this.customEventList[customEventName];
+
+        if (!customEventOfCustomEventList) {
+            return;
+        }
+
+        arrayutil.forEach(customEventOfCustomEventList, function(index, customEventListItem) {
+            if (customEventListItem === customEventHandler) {
+                customEventHandlerIndex = index;
+                return;
+            }
+        });
+
+        customEventOfCustomEventList.splice(customEventHandlerIndex, 1);
+    }
+
+    /**
+     * customEventList를 갖고있는 객체를 반환한다.
+     * @return {string} customEventList를 담고 있는 객체
+     */
+    object.getCustomEventList = function() {
+        return this.customEventList;
+    }
+}
+
+module.exports = {
+    mixin : mixin,
+    customEventObjects : customEventObjects
+}
 
 
 /***/ })

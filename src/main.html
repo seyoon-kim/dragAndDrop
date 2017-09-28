@@ -14,20 +14,67 @@
         height:100px;
       }
 
+      h1{
+        text-align: center;
+      }
+
+      .dndWrap{
+        position: relative;
+        left:50%;
+        margin-top:50px;
+        margin-left:-150px;
+        width:300px;
+      }
+
+      .dragZone{
+        position: absolute;
+        top:0;
+        left:0;
+      }
+
+      .dropZone{
+        position: absolute;
+        top:0;
+        left:200px;
+      }
+
+      .my-dnd{
+        background-color:yellow;
+      }
+
       #dnd1{
         background-color:red;
+      }
+
+      #dnd2{
+        background-color:green;
+      }
+
+      #drop1{
+        background-color:blue;
+      }
+
+      #drop2{
+        background-color:pink;
       }
     </style>
   </head>
   <body>
     <h1>Drag and Drop</h1>
 
-    <div id="dnd1">#dnd1</div>
-    <div id="dnd2"></div>
-    <div class="my-dnd"></div>
-    <div class="my-dnd"></div>
-    <div id="drop1"></div>
-    <div id="drop2"></div>
+    <div class="dndWrap">
+      <div class="dragZone">
+        <div id="dnd1">#dnd1</div>
+        <div id="dnd2">#dnd2</div>
+        <div class="my-dnd">my-dnd</div>
+        <div class="my-dnd">my-dnd</div>
+      </div>
+
+      <div class="dropZone">
+        <div id="drop1">#drop1</div>
+        <div id="drop2">#drop2</div>
+      </div>
+    </div>
 
     <script type="text/javascript" src="../dist/bundle.js"></script>
   </body>
